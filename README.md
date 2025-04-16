@@ -1,4 +1,6 @@
-"
+> **📝 NOTE:** This README uses `YourSite` and `YourSite.com` as placeholders.
+> After setup, search and replace these with your actual community or domain name.
+>
 
 # 📬 Flarum Newsletter Automation
 
@@ -29,7 +31,6 @@ Built to work with the [Syndication extension](https://discuss.flarum.org/d/2768
 | `run_newsletter.php` | Main newsletter generator & sender |
 | `open.php` | Pixel tracking script |
 | `log_viewer.php` | Admin view of sends/opens |
-| `newsletter_template.html` | Sample email |
 | `README.md` | Setup instructions |
 
 ---
@@ -47,7 +48,7 @@ Built to work with the [Syndication extension](https://discuss.flarum.org/d/2768
 
 ---
 
-## 📫 Made by CobbTalk.com
+## 📫 Made by TreyB
 Built for community connection. Fork it, remix it, and make it your own.
 
 MIT Licensed.
@@ -162,4 +163,25 @@ $query = $pdo->query("SELECT username, email FROM ct_users WHERE email IS NOT NU
 ```
 
 Change `ct_users` to match your Flarum user table name.
+
+
+
+---
+
+## 🧩 Database Setup in `open.php` and `log_viewer.php`
+
+Just like `run_newsletter.php`, both `open.php` and `log_viewer.php` require a connection to your MySQL database.
+
+Open each file and find the following section (or similar):
+
+```php
+$dbHost = 'localhost';
+$dbName = 'your_database_name';
+$dbUser = 'your_database_user';
+$dbPass = 'your_database_password';
+```
+
+Update these values to match your actual database configuration.
+
+If you're using a different database/table prefix or have renamed your tables, make sure the SQL queries in those files are updated accordingly.
 
