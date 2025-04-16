@@ -1,70 +1,59 @@
-> **📝 NOTE:** This README uses `YourSite` and `YourSite.com` as placeholders.
-> After setup, search and replace these with your actual community or domain name.
->
+# 📬 CobbTalk Newsletter System
 
-# 📬 Flarum Newsletter Automation
+A self-hosted, token-secured PHP system that automatically sends weekly HTML digests to Flarum forum users, with personalized tracking and one-click unsubscribe functionality.
 
-This is a lightweight, self-hosted PHP system to automatically generate and email weekly newsletters from your [Flarum](https://flarum.org) community using Atom feeds.
-
-Built to work with the [Syndication extension](https://discuss.flarum.org/d/27687-syndication-rss-atom-feeds).
+Built specifically for [CobbTalk.com](https://cobbtalk.com), but easily adaptable for any [Flarum](https://flarum.org) community.
 
 ---
 
-## 🔧 Features
-- Pulls top and newest discussions via Atom feed
-- Generates HTML newsletter (UTF-8 emoji-friendly)
-- Sends emails to all users in your `ct_users` table
-- Logs and tracks opens with pixel tracking
-- Auto-saves each send as a static HTML file
-- Secured cron-trigger via secret key
-- Test mode and unsubscribe support
+## 🔧 Key Features
 
-## 💡 Ideal for:
-- Local forums
-- Niche communities
-- Hobby or project-based Flarum installs
-
-## 📂 File Overview
-
-| File | Purpose |
-|------|---------|
-| `run_newsletter.php` | Main newsletter generator & sender |
-| `open.php` | Pixel tracking script |
-| `log_viewer.php` | Admin view of sends/opens |
-| `README.md` | Setup instructions |
+- 🧠 Automatically pulls top + newest discussions from Atom feeds
+- 📨 Sends HTML email newsletters to all registered users
+- 🧍 Personalized: each email contains the recipient’s username, a tracking token, and secure unsubscribe link
+- 🔒 Fully opt-out compliant with one-time unsubscribe token system
+- 📈 Tracks email opens via pixel
+- 🗃 Logs all sends and opens in MySQL
+- 🧪 `TEST_MODE` for safe local previews
+- 🖼️ Dynamically pulls logo path from Flarum settings
+- 🛡️ Centralized `config.php` for all credentials and access control
 
 ---
 
-## ✅ Quick Setup
+## 📁 File Overview
 
-1. **Enable Atom feeds** with the [Syndication extension](https://discuss.flarum.org/d/27687-syndication-rss-atom-feeds)
-2. **Create the database tables** from the README
-3. **Edit your secret key** in `run_newsletter.php`
-4. **Schedule a cron job** for Thursday 8:15 AM ET:
-    ```bash
-    15 12 * * 4 curl -s "https://yoursite.com/newsletter/run_newsletter.php?key=yourSecretKey" > /dev/null 2>&1
-    ```
-5. ✅ Done! Watch the opens come in.
-
----
-
-## 📫 Made by TreyB
-Built for community connection. Fork it, remix it, and make it your own.
-
-MIT Licensed.
+| File                | Purpose                                                 |
+|---------------------|---------------------------------------------------------|
+| `config.php`        | Stores DB credentials and access token                  |
+| `run_newsletter.php`| Builds + sends digest emails and logs sends            |
+| `unsubscribe.php`   | Handles unsubscribe securely via per-user token         |
+| `open.php`          | Tracks when emails are opened via pixel                |
+| `log_viewer.php`    | Displays latest sends and open rate (token protected)   |
+| `tokens/`           | Stores one-time unsubscribe tokens                      |
+| `newsletters/`      | Saves HTML copies of each newsletter                    |
 
 ---
 
-## 🧩 Step-by-Step Installation Instructions
+## ✅ Initial Setup
 
-### 1. 📥 Download the Files
+1. Place all files inside `/newsletter/` directory
+2. Manually create:
+   - `/tokens/` — writable by PHP
+   - `/newsletters/` — writable by PHP
+3. Create `config.php` like below:
 
-- Download the latest release ZIP from the GitHub repo.
-- Extract the contents into a `/newsletter/` folder on your web server.
+```php
+<?php
+return [
+  'db_host'   => 'localhost',
+  'db_name'   => 'your_database',
+  'db_user'   => 'your_user',
+  'db_pass'   => 'your_password',
+  'log_token' => 'yourSecretKey123'
+];
+```
 
-### 2. 🧱 Create the Database Tables
-
-Run these SQL queries in phpMyAdmin or your MySQL terminal:
+4. Create required database tables:
 
 ```sql
 CREATE TABLE newsletter_logs (
@@ -81,107 +70,92 @@ CREATE TABLE unsubscribed_emails (
 );
 ```
 
-### 3. 🔑 Set Your Secret Key
+---
 
-In `run_newsletter.php`, edit this line near the top:
+## 🧪 Testing
 
+1. In `run_newsletter.php`:
 ```php
-$secret = 'yourSecretKeyHere';
+define('TEST_MODE', true);
+define('TEST_EMAIL', 'your@email.com');
 ```
 
-This protects your script from unauthorized access.
-
-### 4. 🖼️ Customize Your Email Template (Optional)
-
-Edit the HTML output in `run_newsletter.php` if you want to change colors, layout, or branding.
-
-### 5. 🧪 Test Locally Before Sending
-
-Open this in your browser:
+2. Visit in your browser:
 
 ```
-https://yourforum.com/newsletter/run_newsletter.php?key=yourSecretKey
+https://YourSite.com/newsletter/run_newsletter.php?key=yourSecretKey123 (Configred in Config.php)
 ```
 
-- If `TEST_MODE` is enabled, it only sends to you.
-- To print instead of send, comment out `mail(...)` and use `echo`.
+- Only `TEST_EMAIL` will receive the email
+- A `.txt` token file will be created in `/tokens/`
+- Output saved to `/newsletters/`
 
-### 6. 📅 Set Up a Cron Job in cPanel
+---
 
-In cPanel under **Cron Jobs**, use:
+## 🛠 Cron Job
 
-```bash
-15 12 * * 4 curl -s "https://yourforum.com/newsletter/run_newsletter.php?key=yourSecretKey" > /dev/null 2>&1
-```
-
-This sends the digest every **Thursday at 8:15 AM Eastern** (adjust time if needed).
-
-### 7. 📊 View Logs and Opens
-
-Visit:
+To automate weekly sends (e.g., Thursdays at 8:15am ET):
 
 ```
-https://yourforum.com/newsletter/log_viewer.php
+15 12 * * 4 curl -s "https://YourSite.com/newsletter/run_newsletter.php?key=yourSecretKey123" > /dev/null 2>&1
 ```
 
-Here you'll see:
-- Total emails sent
+---
+
+## 📊 View Logs
+
+```
+https://YourSite.com/newsletter/log_viewer.php?token=yourSecretKey123
+```
+
+Stats:
+- Total sent
 - Total opens
 - Open rate
-- Most recent logs
-
-### 8. 🛑 Unsubscribe Handling (Optional)
-
-Add emails to the `unsubscribed_emails` table to exclude users from future sends.
+- 50 most recent logs with status
 
 ---
 
-✅ That’s it! You now have a fully working, automated, and self-hosted Flarum newsletter system.
+## 🛑 Unsubscribe System
 
+Each email includes:
+
+```
+https://YourSite.com/newsletter/unsubscribe.php?email=user@example.com&token=xxxxxx
+```
+
+Unsubscribing:
+- Checks one-time token from `/tokens/`
+- Adds user to `unsubscribed_emails`
+- Deletes token file
+- Sends confirmation email
 
 ---
 
-## 🔐 Configuring Database Access
+## 🖼️ Logo Integration
 
-In `run_newsletter.php`, you'll find the section that connects to your MySQL database. Be sure to replace the placeholders with your own credentials:
+Email header pulls your forum logo dynamically from:
 
-```php
-$dbHost = 'localhost';
-$dbName = 'your_database_name';
-$dbUser = 'your_database_user';
-$dbPass = 'your_database_password';
+```
+ct_settings → logo_path
 ```
 
-You can usually find these details in your hosting control panel (like cPanel) under **MySQL Databases**.
-
-> ✅ Tip: Make sure the user has SELECT access to `ct_users`, and INSERT access to `newsletter_logs`.
-
-If your Flarum installation uses a table prefix (e.g., `flarum_users`), you’ll need to adjust this query too:
-
-```php
-$query = $pdo->query("SELECT username, email FROM ct_users WHERE email IS NOT NULL AND email != ''");
-```
-
-Change `ct_users` to match your Flarum user table name.
-
-
+No need to hardcode image URLs.
 
 ---
 
-## 🧩 Database Setup in `open.php` and `log_viewer.php`
+## 🔐 Security Tips
 
-Just like `run_newsletter.php`, both `open.php` and `log_viewer.php` require a connection to your MySQL database.
-
-Open each file and find the following section (or similar):
-
-```php
-$dbHost = 'localhost';
-$dbName = 'your_database_name';
-$dbUser = 'your_database_user';
-$dbPass = 'your_database_password';
+- Use a strong `log_token` in `config.php`
+- Lock down `/tokens/` with `.htaccess`:
 ```
+Deny from all
+```
+- Use HTTPS and disable directory indexing
 
-Update these values to match your actual database configuration.
+---
 
-If you're using a different database/table prefix or have renamed your tables, make sure the SQL queries in those files are updated accordingly.
+## 👨‍💻 Built By
 
+**Trey Bowman** for [CobbTalk.com](https://cobbtalk.com)  
+MIT Licensed — fork, remix, and deploy freely.
