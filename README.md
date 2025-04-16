@@ -136,3 +136,30 @@ Add emails to the `unsubscribed_emails` table to exclude users from future sends
 ---
 
 ✅ That’s it! You now have a fully working, automated, and self-hosted Flarum newsletter system.
+
+
+---
+
+## 🔐 Configuring Database Access
+
+In `run_newsletter.php`, you'll find the section that connects to your MySQL database. Be sure to replace the placeholders with your own credentials:
+
+```php
+$dbHost = 'localhost';
+$dbName = 'your_database_name';
+$dbUser = 'your_database_user';
+$dbPass = 'your_database_password';
+```
+
+You can usually find these details in your hosting control panel (like cPanel) under **MySQL Databases**.
+
+> ✅ Tip: Make sure the user has SELECT access to `ct_users`, and INSERT access to `newsletter_logs`.
+
+If your Flarum installation uses a table prefix (e.g., `flarum_users`), you’ll need to adjust this query too:
+
+```php
+$query = $pdo->query("SELECT username, email FROM ct_users WHERE email IS NOT NULL AND email != ''");
+```
+
+Change `ct_users` to match your Flarum user table name.
+
