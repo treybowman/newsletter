@@ -1,0 +1,3 @@
+# Deny all web access to token files
+Order allow,deny
+Deny from all
