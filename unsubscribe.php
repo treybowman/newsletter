@@ -11,9 +11,9 @@ if (!$email) {
 }
 
 $dbHost = 'localhost';
-$dbName = 'treyb_cobbtalk';
-$dbUser = 'treyb_cobb';
-$dbPass = 'MaxwellB0wman';
+$dbName = 'your_database_name';
+$dbUser = 'your_database_user';
+$dbPass = 'your_database_password';
 
 try {
     $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
