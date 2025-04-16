@@ -10,6 +10,7 @@ if (!isset($_GET['key']) || $_GET['key'] !== $config['log_token']) {
 
 define('TEST_MODE', false);
 define('TEST_EMAIL', 'support@YourSite.com');
+mb_internal_encoding("UTF-8");
 
 // Fetch ATOM feeds
 function fetchFeed($url) {
