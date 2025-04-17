@@ -11,7 +11,7 @@ return [
 
     // Site branding
     'site_name' => 'YOURSITE',
-    'site_url'  => 'https://YOURSITE.com', // No trailing slash
+    'site_url'  => 'YOURSITE.com', // No trailing slash or http (ex. yoursite.com)
 
     // Flarum table names (customize prefix)
     'users_table'    => 'flarum_users',
