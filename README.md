@@ -1,59 +1,45 @@
-# 📬 CobbTalk Newsletter System
+# 📬 Flarum Newsletter System
 
-A self-hosted, token-secured PHP system that automatically sends weekly HTML digests to Flarum forum users, with personalized tracking and one-click unsubscribe functionality.
-
-Built specifically for [CobbTalk.com](https://cobbtalk.com), but easily adaptable for any [Flarum](https://flarum.org) community.
+A lightweight, self-hosted PHP solution to send automated HTML newsletters using Atom feeds from your [Flarum](https://flarum.org) community. Now powered by a centralized `config.php` for easy setup and customization.
 
 ---
 
-## 🔧 Key Features
+## 🔧 Features
 
-- 🧠 Automatically pulls top + newest discussions from Atom feeds
-- 📨 Sends HTML email newsletters to all registered users
-- 🧍 Personalized: each email contains the recipient’s username, a tracking token, and secure unsubscribe link
-- 🔒 Fully opt-out compliant with one-time unsubscribe token system
-- 📈 Tracks email opens via pixel
-- 🗃 Logs all sends and opens in MySQL
-- 🧪 `TEST_MODE` for safe local previews
-- 🖼️ Dynamically pulls logo path from Flarum settings
-- 🛡️ Centralized `config.php` for all credentials and access control
-
----
-
-## 📁 File Overview
-
-| File                | Purpose                                                 |
-|---------------------|---------------------------------------------------------|
-| `config.php`        | Stores DB credentials and access token                  |
-| `run_newsletter.php`| Builds + sends digest emails and logs sends            |
-| `unsubscribe.php`   | Handles unsubscribe securely via per-user token         |
-| `open.php`          | Tracks when emails are opened via pixel                |
-| `log_viewer.php`    | Displays latest sends and open rate (token protected)   |
-| `tokens/`           | Stores one-time unsubscribe tokens                      |
-| `newsletters/`      | Saves HTML copies of each newsletter                    |
+- Pulls newest and top discussions from Atom feeds
+- Generates branded HTML email with your site logo
+- Sends personalized emails to all users with valid emails
+- Logs opens using pixel tracking
+- Centralized `config.php` to manage site info, DB access, and more
+- Test mode to preview emails without spamming your users
+- Secure unsubscribe via one-time token system
+- Cron-friendly automation
 
 ---
 
-## ✅ Initial Setup
+## 🗃 Folder Structure
 
-1. Place all files inside `/newsletter/` directory
-2. Manually create:
-   - `/tokens/` — writable by PHP
-   - `/newsletters/` — writable by PHP
-3. Create `config.php` like below:
-
-```php
-<?php
-return [
-  'db_host'   => 'localhost',
-  'db_name'   => 'your_database',
-  'db_user'   => 'your_user',
-  'db_pass'   => 'your_password',
-  'log_token' => 'yourSecretKey123'
-];
+```
+/newsletter/
+├── config.php
+├── run_newsletter.php
+├── unsubscribe.php
+├── open.php
+├── log_viewer.php
+├── index.php (optional archive viewer)
+├── /tokens/ (auto-generated, requires write access)
+├── /newsletters/ (stores HTML snapshots)
 ```
 
-4. Create required database tables:
+---
+
+## ⚙️ Setup Instructions
+
+### 1. 🔌 Install Syndication Extension
+
+Make sure you have the [Syndication](https://discuss.flarum.org/d/27687-syndication-rss-atom-feeds) extension enabled.
+
+### 2. 🧱 Create Required Tables
 
 ```sql
 CREATE TABLE newsletter_logs (
@@ -70,92 +56,103 @@ CREATE TABLE unsubscribed_emails (
 );
 ```
 
----
+### 3. ⚙️ Create `config.php`
 
-## 🧪 Testing
-
-1. In `run_newsletter.php`:
 ```php
-define('TEST_MODE', true);
-define('TEST_EMAIL', 'your@email.com');
+<?php
+return [
+    'db_host'         => 'localhost',
+    'db_name'         => 'your_database',
+    'db_user'         => 'your_user',
+    'db_pass'         => 'your_password',
+    'log_token'       => 'runDaily2025',
+    'site_name'       => 'CobbTalk',
+    'site_url'        => 'https://cobbtalk.com',
+    'users_table'     => 'ct_users',
+    'settings_table'  => 'ct_settings',
+    'test_mode'       => false,
+    'test_email'      => 'your@email.com'
+];
 ```
 
-2. Visit in your browser:
+### 4. 🔐 Protect `/tokens/` Folder
+
+Create a `.htaccess` in `/tokens/` with:
 
 ```
-https://YourSite.com/newsletter/run_newsletter.php?key=yourSecretKey123 (Configred in Config.php)
+Deny from all
 ```
 
-- Only `TEST_EMAIL` will receive the email
-- A `.txt` token file will be created in `/tokens/`
-- Output saved to `/newsletters/`
+Or for newer Apache:
+
+```
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+```
 
 ---
 
-## 🛠 Cron Job
+## 🧪 Test It
 
-To automate weekly sends (e.g., Thursdays at 8:15am ET):
+Run in your browser:
 
 ```
-15 12 * * 4 curl -s "https://YourSite.com/newsletter/run_newsletter.php?key=yourSecretKey123" > /dev/null 2>&1
+https://YourSite.com/newsletter/run_newsletter.php?key=YOURPPRIVATEKEY
+```
+
+- Only sends to `test_email` if `test_mode` is enabled
+- Saves a copy of the email to `/newsletters/`
+
+---
+
+## ⏰ Automate It (Cron Job)
+
+Send every Thursday at 8:15 AM ET:
+
+```
+15 12 * * 4 curl -s 'https://YourSite.com/newsletter/run_newsletter.php?key=YOURPPRIVATEKEY' > /dev/null 2>&1
 ```
 
 ---
 
 ## 📊 View Logs
 
+Go to:
+
 ```
-https://YourSite.com/newsletter/log_viewer.php?token=yourSecretKey123
+https://YourSite.com/newsletter/log_viewer.php?token=YOURPPRIVATEKEY
 ```
 
-Stats:
-- Total sent
+You’ll see:
+- Total sends
 - Total opens
 - Open rate
-- 50 most recent logs with status
+- Last 50 sends
 
 ---
 
-## 🛑 Unsubscribe System
+## 🛑 Unsubscribe
 
 Each email includes:
 
 ```
-https://YourSite.com/newsletter/unsubscribe.php?email=user@example.com&token=xxxxxx
+https://YourSite.com/newsletter/unsubscribe.php?email=user@example.com&token=abcdef123456
 ```
 
-Unsubscribing:
-- Checks one-time token from `/tokens/`
-- Adds user to `unsubscribed_emails`
-- Deletes token file
-- Sends confirmation email
+Unsubscribe:
+- Validates the token
+- Adds email to `unsubscribed_emails`
+- Deletes the token file
+- Sends a confirmation
 
 ---
 
-## 🖼️ Logo Integration
+## ✅ Done!
 
-Email header pulls your forum logo dynamically from:
-
-```
-ct_settings → logo_path
-```
-
-No need to hardcode image URLs.
+You now have a fully working, token-secured, auto-sending Flarum newsletter system.
 
 ---
 
-## 🔐 Security Tips
-
-- Use a strong `log_token` in `config.php`
-- Lock down `/tokens/` with `.htaccess`:
-```
-Deny from all
-```
-- Use HTTPS and disable directory indexing
-
----
-
-## 👨‍💻 Built By
-
-**Trey Bowman** for [CobbTalk.com](https://cobbtalk.com)  
-MIT Licensed — fork, remix, and deploy freely.
+MIT Licensed  
+Built by [TreyB](https://treyb.com)
