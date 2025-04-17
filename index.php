@@ -1,5 +1,7 @@
-
 <?php
+$config = require __DIR__ . '/config.php';
+$siteName = htmlspecialchars($config['site_name']);
+
 $dir = __DIR__ . '/newsletters';
 $files = glob($dir . '/newsletter_*.html');
 usort($files, function($a, $b) {
@@ -11,7 +13,7 @@ usort($files, function($a, $b) {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>FORUMNAME Newsletter Archive</title>
+    <title><?= $siteName ?> Newsletter Archive</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 40px; background: #f9f9f9; color: #333; }
         h1 { color: #007bff; }
@@ -22,7 +24,7 @@ usort($files, function($a, $b) {
     </style>
 </head>
 <body>
-    <h1>FORUMNAME Newsletter Archive</h1>
+    <h1><?= $siteName ?> Newsletter Archive</h1>
     <p>Browse all past issues of our community newsletter.</p>
     <ul>
         <?php foreach ($files as $file): 
