@@ -1,6 +1,6 @@
 <?php
-
 $config = require __DIR__ . '/config.php';
+$siteName = htmlspecialchars($config['site_name']);
 
 // Token-based access protection
 if (!isset($_GET['token']) || $_GET['token'] !== $config['log_token']) {
@@ -42,7 +42,7 @@ function obfuscateEmail($email) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Newsletter Log Viewer</title>
+    <title><?= $siteName ?> Newsletter Log Viewer</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 40px; background: #f9f9f9; color: #333; }
         h1, h2 { color: #007bff; }
@@ -54,7 +54,7 @@ function obfuscateEmail($email) {
     </style>
 </head>
 <body>
-    <h1>📬Newsletter Logs</h1>
+    <h1>📬 <?= $siteName ?> Newsletter Logs</h1>
 
     <h2>Stats Summary</h2>
     <p><strong>Total Sent:</strong> <?= $total_sent ?></p>
