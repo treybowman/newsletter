@@ -65,11 +65,11 @@ return [
     'db_name'         => 'your_database',
     'db_user'         => 'your_user',
     'db_pass'         => 'your_password',
-    'log_token'       => 'runDaily2025',
-    'site_name'       => 'CobbTalk',
-    'site_url'        => 'https://cobbtalk.com',
-    'users_table'     => 'ct_users',
-    'settings_table'  => 'ct_settings',
+    'log_token'       => 'YOURPPRIVATEKEY',
+    'site_name'       => 'YourSite',
+    'site_url'        => 'yoursite.com',
+    'users_table'     => 'flarum_users',
+    'settings_table'  => 'flarum_settings',
     'test_mode'       => false,
     'test_email'      => 'your@email.com'
 ];
