@@ -119,7 +119,7 @@ ob_start();
 $htmlOutput = ob_get_clean();
 
 // Save snapshot
-$folder = __DIR__ + '/newsletters';
+$folder = __DIR__ . '/newsletters';
 if (!is_dir($folder)) mkdir($folder, 0777, true);
 file_put_contents($folder . '/newsletter_' . date('Y-m-d') . '.html', mb_convert_encoding($htmlOutput, 'UTF-8', 'UTF-8'));
 
