@@ -3,8 +3,7 @@
 $config = require __DIR__ . '/config.php';
 
 $siteName       = $config['site_name'];
-$siteURL        = rtrim($config['site_url'], '/'); // no http or https
-$fullURL        = 'http://' . $siteURL;            // use http:// for links
+$siteURL        = 'http://' . rtrim($config['site_url'], '/');
 $usersTable     = $config['users_table'];
 $settingsTable  = $config['settings_table'];
 $testMode       = $config['test_mode'] ?? false;
@@ -32,8 +31,8 @@ function fetchFeed($url) {
     return $data;
 }
 
-$topXml = simplexml_load_string(fetchFeed("$fullURL/atom/discussions?sort=top"));
-$newXml = simplexml_load_string(fetchFeed("$fullURL/atom/discussions?sort=newest"));
+$topXml = simplexml_load_string(fetchFeed("$siteURL/atom/discussions?sort=top"));
+$newXml = simplexml_load_string(fetchFeed("$siteURL/atom/discussions?sort=newest"));
 
 if (!$topXml || !$newXml) {
     die('<h2>Error: Could not load one or both feeds.</h2>');
@@ -62,7 +61,7 @@ ob_start();
 <table cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; color: #333;">
     <tr>
         <td align="center" style="padding: 20px;">
-            <img src="<?= $fullURL ?>/assets/<?= htmlspecialchars($logo) ?>" alt="<?= $siteName ?> Logo" width="200" style="margin-bottom: 20px;">
+            <img src="<?= $siteURL ?>/assets/<?= htmlspecialchars($logo) ?>" alt="<?= $siteName ?> Logo" width="200" style="margin-bottom: 20px;">
             <h2 style="color: #007bff; margin: 0;">📬 <?= $siteName ?> Weekly Digest</h2>
             <p style="font-size: 16px;">Here’s a roundup of the hottest and newest discussions from the community this week.</p>
         </td>
@@ -109,9 +108,9 @@ ob_start();
     <tr>
         <td align="center" style="padding: 20px; font-size: 14px; color: #777;">
             <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-            <p>Want more? Visit <a href="<?= $fullURL ?>" style="color: #007bff;"><?= $fullURL ?></a> to join the conversation.</p>
-            <p style="font-size:12px; color:#aaa;">No longer want to receive this? <a href="<?= $fullURL ?>/newsletter/unsubscribe.php?email={{email}}&token={{token}}">Unsubscribe here</a>.</p>
-            <img src="<?= $fullURL ?>/newsletter/open.php?token={{token}}" width="1" height="1" alt="." />
+            <p>Want more? Visit <a href="<?= $siteURL ?>" style="color: #007bff;"><?= $siteURL ?></a> to join the conversation.</p>
+            <p style="font-size:12px; color:#aaa;">No longer want to receive this? <a href="<?= $siteURL ?>/newsletter/unsubscribe.php?email={{email}}&token={{token}}">Unsubscribe here</a>.</p>
+            <img src="<?= $siteURL ?>/newsletter/open.php?token={{token}}" width="1" height="1" alt="." />
         </td>
     </tr>
 </table>
@@ -130,12 +129,9 @@ $unsubscribed = $pdo->query("SELECT email FROM unsubscribed_emails")->fetchAll(P
 $users = $pdo->query("SELECT username, email FROM {$usersTable} WHERE email IS NOT NULL AND email != ''")->fetchAll(PDO::FETCH_ASSOC);
 
 $subject = "Your Weekly {$siteName} Digest";
-$headers  = "MIME-Version: 1.0
-";
-$headers .= "Content-Type: text/html; charset=UTF-8
-";
-$headers .= "From: {$siteName} <no-reply@{$siteURL}>
-";
+$headers  = "MIME-Version: 1.0\r\n";
+$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+$headers .= "From: {$siteName} <no-reply@{$siteURL}>\r\n";
 
 $sentCount = 0;
 foreach ($users as $user) {
@@ -148,6 +144,7 @@ foreach ($users as $user) {
     $token = bin2hex(random_bytes(16));
     file_put_contents(__DIR__ . "/tokens/" . md5($to) . ".txt", $token);
 
+    // 🔁 Replace placeholders
     $personalizedHtml = str_replace(
         ['{{username}}', '{{email}}', '{{token}}'],
         [$username, $to, $token],
@@ -163,4 +160,3 @@ foreach ($users as $user) {
 }
 
 echo "Newsletter saved and sent to {$sentCount} user(s). TEST_MODE=" . ($testMode ? "ON" : "OFF");
-?>
