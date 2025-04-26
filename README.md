@@ -111,7 +111,7 @@ https://YourSite.com/newsletter/run_newsletter.php?key=YOURPPRIVATEKEY
 Send every Thursday at 8:15 AM ET:
 
 ```
-15 12 * * 4 curl -s 'https://YourSite.com/newsletter/run_newsletter.php?key=YOURPPRIVATEKEY' > /dev/null 2>&1
+15 12 * * 4 curl -A "Mozilla/5.0" "https://YourSite.com/newsletter/run_newsletter.php?key=YOURPPRIVATEKEY" > /dev/null 2>&1
 ```
 
 ---
